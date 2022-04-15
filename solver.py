@@ -3,6 +3,7 @@ from copy import deepcopy
 from random import shuffle, randint
 import numpy as np
 import os
+import time
 
 myfile = open("names.txt")
 content = myfile.read()
@@ -15,8 +16,8 @@ for name in used_names:
   used_names.remove(name)
 
 # Reduce the size of names to test performance
-shuffle(names)
-names = names[:70]
+#shuffle(names)
+names = names[:80]
 
 # Create a dictionary where the key is the first letter of the name
 for name in sorted(names):
@@ -32,9 +33,9 @@ def draw_progress(progress):
   return output
 
 def minimax(minimizing: bool, prev_name: str, names_dict: dict, progress: list) -> (str, int):
-  # Print progress with a 1/1000 chance 
+  # Print progress with a 1/10000 chance 
   # to reduce output to terminal which slows down the program
-  if randint(1, 1000) == 1000:
+  if randint(1, 10000) == 10000:
     os.system('clear')
     print(draw_progress(progress))
   
@@ -46,9 +47,9 @@ def minimax(minimizing: bool, prev_name: str, names_dict: dict, progress: list) 
   
   scores = []
   for i, name in enumerate(corresponding_names):
-    names_dict_copy = deepcopy(names_dict)
-    names_dict_copy[name[0]].remove(name)
-    scores.append(minimax(not minimizing, name, names_dict_copy, progress + [(i, len(corresponding_names))])[1])
+    names_dict[name[0]].remove(name)
+    scores.append(minimax(not minimizing, name, names_dict, progress + [(i, len(corresponding_names))])[1])
+    names_dict[name[0]].append(name)
   
   if minimizing:
     return corresponding_names[np.argmin(scores)], min(scores)
@@ -59,4 +60,7 @@ def minimax(minimizing: bool, prev_name: str, names_dict: dict, progress: list) 
 # If the retval contains -1, that means you wim
 # Enter the name that the opponent and True for minimizing and the names_dict
 # And the function will tell you if you can win, along with the best name to say
+start_time = time.time()
 print(minimax(True, used_names[-1], names_dict, []))
+end_time = time.time()
+print(f'Took {end_time-start_time} seconds')
